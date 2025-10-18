@@ -81,6 +81,24 @@ h1{margin:0 0 6px;font-size:clamp(22px,3.2vw,34px);letter-spacing:.2px}
 @media(max-width:600px){
   .logo img { width:32px; height:32px; }
 }
+@media (max-width: 780px){ .menu{grid-template-columns:1fr} }
+.card:hover{ transform: translateY(-2px); box-shadow:0 14px 30px rgba(30,30,60,.10); }
+
+:focus-visible{ outline:none; box-shadow:0 0 0 3px var(--ring); border-radius:12px }
+@media (prefers-reduced-motion: reduce){
+  *{ animation-duration:.001ms !important; animation-iteration-count:1 !important; transition-duration:.001ms !important; scroll-behavior:auto !important; }
+}
+@media (prefers-color-scheme: dark){
+  body{ background: radial-gradient(1200px 900px at 15% 20%, #2f2a45, #1f1b31) fixed; color:#f3f1fb }
+  .side, .content, .card, .modal-card{ background:#26213a; border-color:#3a3357; }
+  .quote{ background:linear-gradient(90deg, rgba(126,87,194,.25), transparent) }
+  .btn{ background:#302a4a; color:#f0eaff }
+  .btn:hover{ background:#3a3360 }
+  .action{ background:#302a4a; color:#f0eaff }
+  .action:hover{ background:#3a3360 }
+  .chip{ background:#3a2f63; color:#d6caff }
+  .legend, .subtitle{ color:#c8c3de }
+}
 
 </style>
 </head>
@@ -525,21 +543,3 @@ setMenu();
 </body>
 </html>
 
-@media (max-width: 780px){ .menu{grid-template-columns:1fr} }
-.card:hover{ transform: translateY(-2px); box-shadow:0 14px 30px rgba(30,30,60,.10); }
-
-:focus-visible{ outline:none; box-shadow:0 0 0 3px var(--ring); border-radius:12px }
-@media (prefers-reduced-motion: reduce){
-  *{ animation-duration:.001ms !important; animation-iteration-count:1 !important; transition-duration:.001ms !important; scroll-behavior:auto !important; }
-}
-@media (prefers-color-scheme: dark){
-  body{ background: radial-gradient(1200px 900px at 15% 20%, #2f2a45, #1f1b31) fixed; color:#f3f1fb }
-  .side, .content, .card, .modal-card{ background:#26213a; border-color:#3a3357; }
-  .quote{ background:linear-gradient(90deg, rgba(126,87,194,.25), transparent) }
-  .btn{ background:#302a4a; color:#f0eaff }
-  .btn:hover{ background:#3a3360 }
-  .action{ background:#302a4a; color:#f0eaff }
-  .action:hover{ background:#3a3360 }
-  .chip{ background:#3a2f63; color:#d6caff }
-  .legend, .subtitle{ color:#c8c3de }
-}
