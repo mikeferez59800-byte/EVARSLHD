@@ -1,0 +1,545 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>EVARS — Cœur de respect LHD</title>
+<meta name="description" content="Jeu EVARS hors-ligne. 4 scénarios. Chemin parfait = 15 bons choix. Neutres n'arrêtent jamais. Mauvais = fissure + explication + fin alternative.">
+<style>
+:root{
+  --bg1:#F6F5FB; --bg2:#ECE8FF; --card:#ffffff;
+  --text:#1f2430; --muted:#5b6071;
+  --accent:#7E57C2; --accent2:#8EC5FF; --accent3:#F4B5D5;
+  --radius:18px; --shadow:0 24px 60px rgba(30,30,60,.12); --ring:#c8b6ff;
+}
+*{box-sizing:border-box}html,body{height:100%}
+body{margin:0;font-family:Inter,system-ui,Segoe UI,Roboto,Helvetica,Arial;color:var(--text);background:radial-gradient(1200px 900px at 15% 20%,var(--bg2),var(--bg1)) fixed;line-height:1.65;-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility}
+.wrap{min-height:100%;display:grid;grid-template-rows:auto 1fr auto}
+header,footer{max-width:1220px;margin:0 auto;padding:calc(16px + env(safe-area-inset-top)) 24px}
+header{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.brand{display:flex;align-items:center;gap:12px}
+.logo{width:42px;height:42px;display:grid;place-items:center;border-radius:12px;background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff;font-size:22px;box-shadow:var(--shadow)}
+.titlebox{font-weight:800}
+.titlebox small{color:var(--muted)}
+main{padding:8px 16px 42px}
+.layout{max-width:1220px;margin:0 auto;display:grid;grid-template-columns:360px 1fr;gap:16px}
+@media(max-width:980px){.layout{grid-template-columns:1fr}.side{order:2}.content{order:1}}
+.side{background:linear-gradient(180deg,rgba(126,87,194,.12),transparent);border:1px solid #eee;border-radius:var(--radius);padding:18px;box-shadow:var(--shadow)}
+.content{background:var(--card);border:1px solid #eee;border-radius:var(--radius);padding:24px 26px 30px;box-shadow:var(--shadow)}
+#heartBox{background:#faf9ff;border:1px solid #eee;border-radius:16px;overflow:hidden;padding:10px}
+#heartSVG{width:100%;height:auto;display:block}
+.legend{color:var(--muted);font-size:13px}
+.tip,.hint,.feedback{background:#fff;border:1px dashed #d9d5f3;padding:10px 12px;border-radius:12px;font-size:13px;color:#4b4f64;margin-top:10px}
+h1{margin:0 0 6px;font-size:clamp(22px,3.2vw,34px);letter-spacing:.2px}
+.subtitle{color:var(--muted);margin-bottom:8px}
+.progress{height:10px;background:#eee;border-radius:999px;overflow:hidden;margin:16px 0 22px}
+.progress>div{height:100%;width:0;background:linear-gradient(90deg,var(--accent),var(--accent2),var(--accent3));transition:width .35s ease}
+.quote{background:linear-gradient(90deg,rgba(126,87,194,.15),transparent);padding:12px 14px;border-left:4px solid var(--accent);border-radius:10px}
+.choices{display:grid;gap:12px;margin-top:10px}
+.btn{border:0;border-radius:14px;padding:14px 16px;text-align:left;background:#F5F4FA;color:var(--text);font-weight:700;
+  box-shadow:0 1px 0 rgba(0,0,0,.02);transition:transform .08s ease,background .2s, box-shadow .2s;cursor:pointer;outline:none}
+.btn:hover{transform:translateY(-1px);background:#efedf7;box-shadow:0 6px 16px rgba(30,30,60,.08)}
+.btn:focus-visible{box-shadow:0 0 0 3px var(--ring)}
+.btn:hover{transform:translateY(-1px);background:#efedf7;box-shadow:0 6px 16px rgba(30,30,60,.08)}
+.btn.primary{background:linear-gradient(135deg,rgba(126,87,194,.12),rgba(142,197,255,.12))}
+.meta{display:flex;gap:10px;flex-wrap:wrap;align-items:center;justify-content:space-between;margin-top:20px;color:var(--muted);font-size:14px}
+.chip{background:#efeafb;color:#533a94;padding:6px 10px;border-radius:999px;font-weight:700;font-size:12px}
+.actions{display:flex;gap:10px}
+.action{border:0;background:#f6f6fb;color:#3a3f55;padding:10px 14px;border-radius:12px;cursor:pointer;font-weight:700;transition:box-shadow .2s ease, transform .15s ease}
+.action:hover{background:#efedf7;box-shadow:0 6px 16px rgba(30,30,60,.08);transform:translateY(-1px)}
+.action:active{transform:translateY(0)}
+.fade-enter{animation:fade .28s ease both}
+@keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1}}
+
+/* Menu */
+.menu{display:grid;grid-template-columns:repeat(2,minmax(260px,1fr));gap:18px;margin-top:12px}
+.card{border:1px solid #ece9fb;border-radius:16px;padding:18px;background:#fff;box-shadow:0 8px 22px rgba(30,30,60,.06);display:grid;gap:12px;transition:transform .15s ease, box-shadow .2s ease}
+.card h3{margin:0;font-size:18px}
+.badge{font-size:12px;padding:6px 10px;border-radius:999px;background:#f5f2ff;color:#5a3fa3;font-weight:800}
+.badge+.badge{margin-left:6px}
+.play{justify-self:start;border:0;
+  background: linear-gradient(135deg, #e6d4ff, #ffd6eb);
+  padding:12px 18px;border-radius:12px;
+  font-weight:800;cursor:pointer;color:#402a79;
+  box-shadow:0 4px 10px rgba(126,87,194,.18);
+  transition:transform .15s ease, box-shadow .2s ease, filter .2s ease;
+}
+.play:hover{ transform:translateY(-1px); box-shadow:0 8px 18px rgba(126,87,194,.28); filter:saturate(1.02); }
+.play:active{ transform:translateY(0); }
+
+/* Heart crack */
+.crack{animation:crack .6s ease both}
+@keyframes crack{0%{transform:scale(1)}40%{transform:scale(1.04)}100%{transform:scale(1)}}
+
+/* Modal */
+.modal{position:fixed;inset:0;display:none;align-items:center;justify-content:center;background:rgba(17,14,30,.45);z-index:50}
+.modal.active{display:flex}
+.modal-card{max-width:720px;width:92%;background:#fff;border-radius:18px;box-shadow:0 30px 70px rgba(30,30,60,.20);padding:20px 22px;border:1px solid #eee}
+.modal h3{margin:0 0 6px}
+.modal .actions{justify-content:flex-end}
+
+@media(max-width:600px){
+  .logo img { width:32px; height:32px; }
+}
+
+</style>
+</head>
+<body>
+<div class="wrap">
+<header>
+  <div class="brand">
+    <div class="logo">
+      <img src="logo-evars.png" alt="Logo EVARS" style="width:42px;height:42px;border-radius:8px;">
+    </div>
+    <div class="titlebox">
+      <div>EVARS — <span style="color:#7E57C2">Cœur de respect</span></div>
+     
+    </div>
+  </div>
+  <div class="titlebox"><small>1CIEL </small></div>
+</header>
+
+
+<main>
+  <div class="layout">
+    <div class="side">
+      <div id="heartBox">
+        <svg id="heartSVG" viewBox="0 0 512 448" xmlns="http://www.w3.org/2000/svg" aria-label="Cœur">
+          <defs>
+            <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#efeaff"/><stop offset="1" stop-color="#e7f1ff"/></linearGradient>
+            <radialGradient id="heartGrad" cx="35%" cy="30%" r="75%"><stop offset="0" stop-color="#ffc7de"/><stop offset="0.5" stop-color="#ff9fc4"/><stop offset="1" stop-color="#9d6be8"/></radialGradient>
+            <radialGradient id="gloss" cx="30%" cy="25%" r="40%"><stop offset="0" stop-color="white" stop-opacity="0.8"/><stop offset="1" stop-color="white" stop-opacity="0"/></radialGradient>
+            <clipPath id="fillClip"><rect id="clipRect" x="0" y="448" width="512" height="0"/></clipPath>
+            <filter id="shadow"><feDropShadow dx="0" dy="8" stdDeviation="12" flood-color="#7e57c2" flood-opacity="0.25"/></filter>
+          </defs>
+          <rect width="100%" height="100%" fill="url(#bg)"/>
+          <g filter="url(#shadow)">
+            <path d="M256 380 C 120 300, 80 200, 140 150 C 190 110, 256 135, 256 165 C 256 135, 322 110, 372 150 C 432 200, 392 300, 256 380 Z" fill="#fff" stroke="#cbb7ff" stroke-width="8"/>
+            <g clip-path="url(#fillClip)">
+              <path d="M256 380 C 120 300, 80 200, 140 150 C 190 110, 256 135, 256 165 C 256 135, 322 110, 372 150 C 432 200, 392 300, 256 380 Z" fill="url(#heartGrad)"/>
+            </g>
+            <ellipse cx="210" cy="165" rx="110" ry="80" fill="url(#gloss)"/>
+            <path d="M256 380 C 120 300, 80 200, 140 150 C 190 110, 256 135, 256 165 C 256 135, 322 110, 372 150 C 432 200, 392 300, 256 380 Z" fill="none" stroke="#b99ef8" stroke-width="6"/>
+            <path id="crackLine" d="M256 150 L280 190 L240 215 L270 245 L235 285" stroke="#ff4d6d" stroke-width="10" fill="none" stroke-linecap="round" visibility="hidden"/>
+          </g>
+          <g font-family="Inter,Arial" font-weight="700" font-size="24" fill="#5b6071"><text id="scoreText" x="50%" y="430" text-anchor="middle">0.00%</text></g>
+        </svg>
+      </div>
+      <div class="legend"><strong>Indicateur</strong> — +6,67%/bon choix (15/15 = 100%)</div>
+      <div class="tip"><strong>Revenir</strong> ou <strong>Recommencer</strong> si besoin.</div>
+    </div>
+
+    <div class="content">
+      <h1 id="title">Choisis un personnage</h1>
+      <div class="subtitle" id="subtitle">Objectif : atteindre 100% en enchaînant 15 bons choix.</div>
+      <div class="progress"><div id="bar"></div></div>
+      <div id="feedback" class="feedback" style="display:none"></div>
+      <div class="scene" id="scene"></div>
+      <div class="choices" id="choices"></div>
+      <div class="meta"><div id="trail" class="chip">Progression : 0%</div>
+        <div class="actions"><button class="action" id="backBtn" disabled>💞 Revenir</button><button class="action" id="restartBtn">💗 Recommencer</button></div>
+      </div>
+    </div>
+  </div>
+</main>
+
+<footer>1CIEL — Lycée Henri Darras • EVARS : Consentement & communication.</footer>
+</div>
+
+<!-- Modal -->
+<div class="modal" id="modal">
+  <div class="modal-card">
+    <h3>Pourquoi ce choix pose problème ?</h3>
+    <div id="modalBody">…</div>
+    <div class="actions" style="margin-top:12px"><button class="action" onclick="closeModal()">Continuer</button></div>
+  </div>
+</div>
+
+<script>
+/* ===================== UTIL ===================== */
+const STEP = 100/15;
+const $ = (id)=>document.getElementById(id);
+const shuffle = (a)=>{for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a;};
+
+/* ===================== DATA ===================== */
+/* Chaque scénario a un chemin parfait de 15 scènes (X1..X15).
+   - "good" -> scène suivante du chemin parfait
+   - "neutral" -> scène parallèle qui revient vite sur le chemin (jamais de fin)
+   - "bad" -> fin alternative (X14) immédiate (avec explication)
+*/
+const Scenarios = {
+  alex:{ name:"💬 Alex — Soirée & consentement", intro:"A1", perfect:"A15", alt:"A14", scenes:[
+    ["A1","Lina","« On peut parler dehors ? »",
+      {k:"good",label:"Sortir parler au calme", to:"A2"},
+      {k:"neutral",label:"« Plus tard »", to:"A1n"},
+      {k:"bad",label:"« Pas besoin »", end:true, explain:"Refuser de parler empêche d’établir des limites et du consentement."}],
+    ["A1n","Narrateur","Tu restes encore un peu, mais ton tel vibre.",
+      {k:"good",label:"Écrire à Lina pour fixer un moment", to:"A2"},
+      {k:"neutral",label:"Ignorer et danser", to:"A2"}],
+    ["A2","Narrateur","Dehors, Lina t’embrasse rapidement.",
+      {k:"good",label:"Dire ce que tu ressens et poser une limite", to:"A3"},
+      {k:"neutral",label:"Ne rien dire (malaise)", to:"A2n"},
+      {k:"bad",label:"Raconter à un ami", end:true, explain:"Partager un moment intime sans accord trahit la confiance."}],
+    ["A2n","Lina","« Je ne sais pas ce que tu veux. »",
+      {k:"good",label:"Clarifier ta position", to:"A3"},
+      {k:"neutral",label:"Changer de sujet", to:"A3"}],
+    ["A3","Alex","« J’apprécie mais pas prêt·e pour plus maintenant. »",
+      {k:"good",label:"Proposer d’en parler au calme", to:"A4"},
+      {k:"neutral",label:"« Je sais pas »", to:"A3n"},
+      {k:"bad",label:"« Si tu insistes… »", end:true, explain:"Consentement = libre, enthousiaste, réversible. Céder sous pression, ce n’est pas consentir."}],
+    ["A3n","Narrateur","Le flou reste.",
+      {k:"good",label:"Être clair·e sur tes limites", to:"A4"},
+      {k:"neutral",label:"Rester flou·e", to:"A4"}],
+    ["A4","Narrateur","Vous convenez d’un moment calme pour parler.",
+      {k:"good",label:"Définir temps, lieu, limites", to:"A5"},
+      {k:"neutral",label:"Reporter sans cadre", to:"A5n"},
+      {k:"bad",label:"Imposer un tête-à-tête maintenant", end:true, explain:"On ne force jamais un contexte intime : l’accord se fait à deux."}],
+    ["A5n","Narrateur","Le flou s’installe un peu…",
+      {k:"good",label:"Dire « soyons au clair »", to:"A5"},
+      {k:"neutral",label:"Toujours plus tard", to:"A5"}],
+    ["A5","Narrateur","Rumeurs : un message circule.",
+      {k:"good",label:"Stopper la rumeur + s’excuser", to:"A6"},
+      {k:"neutral",label:"Laisser courir", to:"A6"},
+      {k:"bad",label:"Alimenter pour faire rire", end:true, explain:"Exposer l’intime blesse durablement et propage la rumeur."}],
+    ["A6","Narrateur","Discussion posée : émotions, besoins.",
+      {k:"good",label:"Exprimer et écouter", to:"A7"},
+      {k:"neutral",label:"« Ça ira » sans contenu", to:"A7n"},
+      {k:"bad",label:"Mettre la pression", end:true, explain:"Mettre la pression rend l’accord invalide."}],
+    ["A7n","Narrateur","Le dialogue reste superficiel…",
+      {k:"good",label:"Revenir à une vraie écoute", to:"A7"},
+      {k:"neutral",label:"Raccourcir", to:"A8"}],
+    ["A7","Alex & Lina","Vous posez un cadre clair.",
+      {k:"good",label:"Valider consentement (clair/enthousiaste/réversible)", to:"A8"},
+      {k:"neutral",label:"Dire « ok »", to:"A8"}],
+    ["A8","Narrateur","Petite pause : on respire.",
+      {k:"good",label:"Fixer un rendez-vous de parole", to:"A9"},
+      {k:"neutral",label:"Laisser filer", to:"A9"}],
+    ["A9","Narrateur","Derniers ajustements.",
+      {k:"good",label:"Vérifier que chacun est à l’aise", to:"A10"},
+      {k:"neutral",label:"Changer de sujet", to:"A10"}],
+    ["A10","Narrateur","Tu récapitules vos limites et envies.",
+      {k:"good",label:"Récap clair & commun", to:"A11"},
+      {k:"neutral",label:"Récap flou", to:"A11"}],
+    ["A11","Narrateur","Tout est posé.",
+      {k:"good",label:"Confirmer qu’on peut dire stop à tout moment", to:"A12"},
+      {k:"neutral",label:"Dire « t’inquiète »", to:"A12"}],
+    ["A12","Narrateur","Dernière vérification",
+      {k:"good",label:"Demander « tu es ok ? »", to:"A13"},
+      {k:"neutral",label:"Supposer que oui", to:"A13"}],
+    ["A13","Narrateur","Vous êtes alignés.",
+      {k:"good",label:"Conclure sur le respect mutuel", to:"A15"},
+      {k:"neutral",label:"Conclure rapidement", to:"A15"}],
+    ["A14","Bilan","Fin A — Alternative. Apprendre et recommencer.", "END"],
+    ["A15","Bilan","Fin A — Parfaite. Cœur plein si 15/15.", "END"]
+  ]},
+
+  sam:{ name:"📱 Sam — En ligne & image", intro:"B1", perfect:"B15", alt:"B14", scenes:[
+    ["B1","Narrateur","Tu reçois une photo intime non sollicitée.",
+      {k:"good",label:"Demander ce que l’autre souhaite (garder/supprimer)", to:"B2"},
+      {k:"neutral",label:"Ne rien répondre", to:"B1n"},
+      {k:"bad",label:"Transférer à un ami", end:true, explain:"Diffuser sans accord est une atteinte grave."}],
+    ["B1n","Narrateur","Tu hésites devant l’écran…",
+      {k:"good",label:"Proposer la suppression", to:"B2"},
+      {k:"neutral",label:"Laisser en suspens", to:"B2"}],
+    ["B2","L’autre","« Je préfère que tu supprimes… »",
+      {k:"good",label:"Supprimer et le confirmer", to:"B3"},
+      {k:"neutral",label:"Dire « ok » sans preuve", to:"B3"},
+      {k:"bad",label:"Garder quand même", end:true, explain:"Conserver contre l’avis de l’autre n’est pas respectueux."}],
+    ["B3","Narrateur","Suppression faite.",
+      {k:"good",label:"Donner une preuve / explication", to:"B4"},
+      {k:"neutral",label:"Dire juste « c’est fait »", to:"B4"}],
+    ["B4","Narrateur","Vous discutez des limites.",
+      {k:"good",label:"Pas de transferts/screens, respect mutuel", to:"B5"},
+      {k:"neutral",label:"« On verra »", to:"B5n"},
+      {k:"bad",label:"Exiger/culpabiliser", end:true, explain:"La contrainte n’est pas un accord."}],
+    ["B5n","Narrateur","Le flou reste…",
+      {k:"good",label:"Écrire la règle clairement", to:"B5"},
+      {k:"neutral",label:"Rester flou", to:"B5"}],
+    ["B5","Narrateur","Règles posées.",
+      {k:"good",label:"Activer verrouillage/album privé", to:"B6"},
+      {k:"neutral",label:"Dire « ok »", to:"B6"}],
+    ["B6","Narrateur","Tout est en place.",
+      {k:"good",label:"Valider que chacun est à l’aise", to:"B7"},
+      {k:"neutral",label:"Passer vite à autre chose", to:"B7"}],
+    ["B7","Narrateur","Un ami plaisante sur la photo.",
+      {k:"good",label:"Ne pas relayer, couper court", to:"B8"},
+      {k:"neutral",label:"Faire un emoji évasif", to:"B8"},
+      {k:"bad",label:"Blaguer en public", end:true, explain:"Même pour « rire », ça expose l’autre."}],
+    ["B8","Narrateur","Dernier check.",
+      {k:"good",label:"Rappeler « pas de partage »", to:"B9"},
+      {k:"neutral",label:"Rien dire", to:"B9"}],
+    ["B9","Narrateur","On écrit un petit pacte numérique.",
+      {k:"good",label:"Rédiger et valider ensemble", to:"B10"},
+      {k:"neutral",label:"Oral seulement", to:"B10"}],
+    ["B10","Narrateur","Tu proposes un récap.",
+      {k:"good",label:"Relire les points clés", to:"B11"},
+      {k:"neutral",label:"Dire « c’est bon »", to:"B11"}],
+    ["B11","Narrateur","Tout est clair.",
+      {k:"good",label:"Confirmer la réversibilité (on peut changer d’avis)", to:"B12"},
+      {k:"neutral",label:"Passer", to:"B12"}],
+    ["B12","Narrateur","Ok pour chacun.",
+      {k:"good",label:"Dire merci d’avoir clarifié", to:"B13"},
+      {k:"neutral",label:"Clore vite", to:"B13"}],
+    ["B13","Narrateur","Conclusion.",
+      {k:"good",label:"Respect & consentement, on s’y tient", to:"B15"},
+      {k:"neutral",label:"Dire « ok »", to:"B15"}],
+    ["B14","Bilan","Fin B — Alternative. Protéger l’intimité.", "END"],
+    ["B15","Bilan","Fin B — Parfaite. Cœur plein si 15/15.", "END"]
+  ]},
+
+  Dean:{ name:"🗣️ Dean — Rumeurs & pression", intro:"C1", perfect:"C15", alt:"C14", scenes:[
+    ["C1","Narrateur","Une rumeur démarre au couloir.",
+      {k:"good",label:"Dire calmement « stop, c’est privé »", to:"C2"},
+      {k:"neutral",label:"S’éloigner", to:"C1n"},
+      {k:"bad",label:"Rire avec le groupe", end:true, explain:"Rire alimente la rumeur et blesse la personne visée."}],
+    ["C1n","Narrateur","Les messages tournent…",
+      {k:"good",label:"Prévenir un adulte de confiance", to:"C2"},
+      {k:"neutral",label:"Se taire", to:"C2"}],
+    ["C2","Noor","« On arrête, ça concerne la vie privée. »",
+      {k:"good",label:"Proposer la règle « on n’en parle plus »", to:"C3"},
+      {k:"neutral",label:"Dire juste « pas cool »", to:"C3"}],
+    ["C3","Narrateur","Le flou reste.",
+      {k:"good",label:"Soutenir directement la personne", to:"C4"},
+      {k:"neutral",label:"Ignorer", to:"C4"}],
+    ["C4","Narrateur","Charte anti-rumeur en classe.",
+      {k:"good",label:"Rédiger ensemble", to:"C5"},
+      {k:"neutral",label:"Promis sans suite", to:"C5"}],
+    ["C5","Narrateur","Message de soutien.",
+      {k:"good",label:"Proposer d’aller voir l’adulte ensemble", to:"C6"},
+      {k:"neutral",label:"Dire « courage »", to:"C6"}],
+    ["C6","Narrateur","Ça traîne…",
+      {k:"good",label:"Message public : on respecte", to:"C7"},
+      {k:"neutral",label:"Laisser passer", to:"C7"}],
+    ["C7","Narrateur","Consolidation des règles.",
+      {k:"good",label:"Procédure : signaler / ne pas relayer", to:"C8"},
+      {k:"neutral",label:"« Ok ok »", to:"C8"},
+      {k:"bad",label:"Mème moqueur", end:true, explain:"Le mème banalise la moquerie et propage la rumeur."}],
+    ["C8","Narrateur","Ambiguïtés.",
+      {k:"good",label:"Rappeler la règle à un ami", to:"C9"},
+      {k:"neutral",label:"Laisser filer", to:"C9"}],
+    ["C9","Narrateur","Affichage d’un rappel en classe.",
+      {k:"good",label:"Faire une affiche simple", to:"C10"},
+      {k:"neutral",label:"En parler seulement à l’oral", to:"C10"}],
+    ["C10","Narrateur","Tensions entre deux élèves.",
+      {k:"good",label:"Médiation rapide", to:"C11"},
+      {k:"neutral",label:"Attendre", to:"C11"}],
+    ["C11","Narrateur","Apaisement progressif.",
+      {k:"good",label:"Valoriser les bons comportements", to:"C12"},
+      {k:"neutral",label:"Rien faire", to:"C12"}],
+    ["C12","Narrateur","Stabilisation.",
+      {k:"good",label:"Rappel final : on protège", to:"C13"},
+      {k:"neutral",label:"Dire « ok »", to:"C13"}],
+    ["C13","Narrateur","Dernier point.",
+      {k:"good",label:"Dire « on garde ce cadre »", to:"C15"},
+      {k:"neutral",label:"Conclusion rapide", to:"C15"}],
+    ["C14","Bilan","Fin C — Alternative. Reposer une norme de respect.", "END"],
+    ["C15","Bilan","Fin C — Parfaite. Cœur plein si 15/15.", "END"]
+  ]},
+
+  jade:{ name:"💞 Jade — Jalousie & limites", intro:"D1", perfect:"D15", alt:"D14", scenes:[
+    ["D1","Narrateur","Ton/ta partenaire demande tes mots de passe.",
+      {k:"good",label:"Dire non calmement + proposer d’en parler", to:"D2"},
+      {k:"neutral",label:"Éviter le sujet", to:"D1n"},
+      {k:"bad",label:"Céder pour éviter le conflit", end:true, explain:"La confiance n’est pas le contrôle. Partager ses codes crée des risques."}],
+    ["D1n","Narrateur","Tu repousses la discussion.",
+      {k:"good",label:"Fixer un créneau d’échange", to:"D2"},
+      {k:"neutral",label:"Laisser pour plus tard", to:"D2"}],
+    ["D2","Narrateur","Parler d’insécurité : peurs, besoin d’être rassuré·e.",
+      {k:"good",label:"Nommer peurs/besoins sans contrôle", to:"D3"},
+      {k:"neutral",label:"« Ok mais vite »", to:"D3"}],
+    ["D3","Narrateur","Le doute persiste.",
+      {k:"good",label:"Proposer médiation adulte", to:"D4"},
+      {k:"neutral",label:"Changer de sujet", to:"D4"},
+      {k:"bad",label:"Vérifier en cachette", end:true, explain:"Espionner = briser la confiance."}],
+    ["D4","Narrateur","Définir des limites saines.",
+      {k:"good",label:"Établir des limites claires", to:"D5"},
+      {k:"neutral",label:"« On verra »", to:"D5"},
+      {k:"bad",label:"« Si tu m’aimais… »", end:true, explain:"Le chantage affectif n’est pas une preuve d’amour."}],
+    ["D5","Narrateur","On piétine un peu.",
+      {k:"good",label:"Transparence non intrusive (exemples)", to:"D6"},
+      {k:"neutral",label:"Silence", to:"D6"}],
+    ["D6","Narrateur","Pacte de confiance.",
+      {k:"good",label:"Écrire 3 règles : respect, autonomie, parole", to:"D7"},
+      {k:"neutral",label:"Oral seulement", to:"D7"}],
+    ["D7","Narrateur","Application.",
+      {k:"good",label:"Mettre en place un check-in hebdo", to:"D8"},
+      {k:"neutral",label:"Dire « ok »", to:"D8"}],
+    ["D8","Narrateur","Ambigu ou fatigue.",
+      {k:"good",label:"Médiation externe", to:"D9"},
+      {k:"neutral",label:"Laisser filer", to:"D9"},
+      {k:"bad",label:"Jalousie publique (story, pique)", end:true, explain:"Exposer un conflit intime en public abîme la relation."}],
+    ["D9","Narrateur","Valoriser quand c’est bien.",
+      {k:"good",label:"Féliciter les progrès", to:"D10"},
+      {k:"neutral",label:"Rien", to:"D10"}],
+    ["D10","Narrateur","Stabilité.",
+      {k:"good",label:"Ajuster si besoin", to:"D11"},
+      {k:"neutral",label:"Status quo", to:"D11"}],
+    ["D11","Narrateur","Rappel : confiance ≠ contrôle.",
+      {k:"good",label:"Valider ce principe", to:"D12"},
+      {k:"neutral",label:"« Ok »", to:"D12"}],
+    ["D12","Narrateur","Dernière vérification.",
+      {k:"good",label:"Dire ce que chacun attend", to:"D13"},
+      {k:"neutral",label:"Conclusion rapide", to:"D13"}],
+    ["D13","Narrateur","Conclusion.",
+      {k:"good",label:"Respect & autonomie, on s’y tient", to:"D15"},
+      {k:"neutral",label:"Dire « ok »", to:"D15"}],
+    ["D14","Bilan","Fin D — Alternative. Repartir sur des bases saines.", "END"],
+    ["D15","Bilan","Fin D — Parfaite. Cœur plein si 15/15.", "END"]
+  ]}
+};
+
+/* ===================== STATE ===================== */
+let current=null, history=[], good=0;
+
+/* ===================== ENGINE ===================== */
+function setMenu(){
+  current=null; history=[]; good=0; updateHeart(0,true);
+  $("title").textContent="Menu — Choisis un personnage";
+  $("subtitle").textContent="Objectif : atteindre 100% en enchaînant 15 bons choix.";
+  $("bar").style.width="0%"; $("trail").textContent="Progression : 0%"; $("backBtn").disabled=true;
+  $("feedback").style.display="none"; $("scene").innerHTML = `<div class="menu">${
+    Object.entries(Scenarios).map(([k,s])=>`
+      <div class="card">
+        <h3>${s.name}</h3>
+        <div><span class="badge">chemin parfait : 15 scènes</span><span class="badge" style="margin-left:6px">+6,67%/bon choix</span></div>
+        <button class="play" onclick="startScenario('${k}')">💗 Jouer</button>
+      </div>`).join("")
+  }</div>`;
+  $("choices").innerHTML="";
+}
+function startScenario(key){
+  current = { key, data: Scenarios[key] };
+  history=[]; good=0; updateHeart(0,true);
+  go(current.data.intro, null);
+}
+function sceneById(id){
+  const arr = current.data.scenes;
+  for(const row of arr){ if(row[0]===id) return row; }
+  return null;
+}
+function go(id, choice){
+  // reset crack visibility
+  try{$("crackLine").setAttribute("visibility","hidden");}catch(e){}
+  if(choice){
+    if(choice.k==="good"){ good += 1; }
+    if(choice.k==="bad"){ flashCrack(); showExplain(choice.explain||"Ce choix met à risque le respect/le consentement."); }
+  }
+  history.push(id);
+  const s = sceneById(id); if(!s) return;
+
+  // compute percent
+  let pct = Math.min(100, good*STEP);
+  // block perfect end if goods < 15
+  if(s[0]===current.data.perfect && good<15){ // redirected reached (shouldn't)
+    pct = Math.min(100, good*STEP);
+  }
+  updateHeart(pct,false);
+
+  // UI scene
+  const [sid, speaker, text, ...opts] = s;
+  $("title").textContent = current.data.name;
+  $("subtitle").textContent = `${current.key.toUpperCase()} — bons choix : ${good}/15`;
+
+  if(opts.length===1 && opts[0]==="END"){
+    // Bilan
+    const perfect = (sid===current.data.perfect && good>=15);
+    const missing = Math.max(0, 15-good);
+    const resume = `${current.data.name.split('—')[1].trim()} — Score: ${pct.toFixed(2)}%. `+(perfect?"Parcours parfait.":"Fin alternative.");
+    $("scene").innerHTML = `
+      <div class="quote"><strong>${speaker} :</strong> ${text}</div>
+      <h2 style="margin:10px 0">${perfect?"🎉 Bilan — Chemin parfait":"📌 Bilan — Fin alternative"}</h2>
+      <p><strong>Score cœur :</strong> ${pct.toFixed(2)}%</p>
+      <ul>${perfect?
+        "<li>Consentement clair, enthousiaste, réversible.</li><li>Communication : émotions & limites.</li><li>Respect de l’intimité.</li>":
+        `<li>Identifier où ça a dérapé (pression, exposition, rumeur, contrôle…)</li>
+         <li>Réparer : s’excuser, retirer ce qui blesse, proposer un cadre clair.</li>
+         <li>Réessayer en visant l’écoute active & l’accord explicite.</li>
+         <li>Il te manquait <strong>${missing}</strong> bonne(s) décision(s) pour le cœur plein.</li>`
+      }</ul>
+      <div class="tip" id="res">${resume}</div>
+      <button class="action" onclick="navigator.clipboard.writeText(document.getElementById('res').innerText)">📋 Copier le résumé</button>
+    `;
+    const ch = $("choices"); ch.innerHTML="";
+    const retry = document.createElement("button"); retry.className="btn"; retry.textContent="💞 Rejouer depuis la dernière scène";
+    retry.onclick=()=>{ if(history.length>1){ history.pop(); const prev=history.pop(); go(prev,null); } };
+    const back = document.createElement("button"); back.className="btn primary"; back.textContent="🏠 Retour au menu"; back.onclick=()=>setMenu();
+    ch.appendChild(retry); ch.appendChild(back);
+    $("feedback").style.display="none";
+  }else{
+    $("scene").innerHTML = `<div class="quote"><strong>${speaker} :</strong> ${text}</div>`;
+    const ch = $("choices"); ch.innerHTML="";
+    // build buttons
+    const choices = opts.map(o=>({k:o.k,label:o.label,to:o.to,end:o.end,explain:o.explain}));
+    shuffle(choices).forEach(c=>{
+      const b=document.createElement("button"); b.className="btn";
+      const icon = c.k==="good"?"":c.k==="bad"?"":"";
+      b.innerHTML = `${icon} ${c.label}`;
+      b.onclick = ()=>{
+        $("feedback").style.display="block";
+        if(c.k==="neutral"){ $("feedback").textContent=" Choix neutre : +0%. Tu peux faire mieux pour remplir le cœur."; }
+        if(c.k==="good"){ $("feedback").textContent=" Bon choix : +6,67% !"; }
+        if(c.k==="bad"){ $("feedback").textContent=" Mauvais choix : fin alternative."; }
+        if(c.end){ go(current.data.alt, c); }
+        else{
+          // empêcher d'atteindre la fin parfaite si pas 15
+          if(c.to===current.data.perfect && (good + (c.k==="good"?1:0))<15){
+            showExplain("Pour le chemin parfait, il faut 15 décisions alignées avec le respect et le consentement.");
+            return go(current.data.alt, c);
+          }
+          go(c.to, c);
+        }
+      };
+      ch.appendChild(b);
+    });
+  }
+
+  const depth = Math.max(1, history.length-1);
+  const barPct = Math.min(100, Math.round((depth/15)*100));
+  $("bar").style.width = barPct+"%";
+  $("trail").textContent = `Progression : ${barPct}%`;
+  $("backBtn").disabled = (history.length<=1);
+}
+$("backBtn").onclick=()=>{ if(!current) return; if(history.length>1){ history.pop(); const prev=history.pop(); go(prev,null);} };
+$("restartBtn").onclick=()=>{ if(current){ startScenario(current.key); } else { setMenu(); } };
+
+/* ===================== HEART ===================== */
+function updateHeart(percent){
+  const H=448; const fillH=Math.round((percent/100)*H), y=H-fillH;
+  $("clipRect").setAttribute("y", y); $("clipRect").setAttribute("height", fillH);
+  $("scoreText").textContent = percent.toFixed(2)+"%";
+  $("crackLine").setAttribute("visibility","hidden");
+}
+function flashCrack(){
+  const crack=$("crackLine"); crack.setAttribute("visibility","visible");
+  const hsvg=$("heartSVG"); hsvg.classList.remove("crack"); void hsvg.offsetWidth; hsvg.classList.add("crack");
+  setTimeout(()=>crack.setAttribute("visibility","hidden"), 900);
+}
+
+/* ===================== MODAL ===================== */
+function showExplain(t){ $("modalBody").textContent=t; $("modal").classList.add("active"); }
+function closeModal(){ $("modal").classList.remove("active"); }
+
+/* ===================== START ===================== */
+setMenu();
+</script>
+</body>
+</html>
+
+@media (max-width: 780px){ .menu{grid-template-columns:1fr} }
+.card:hover{ transform: translateY(-2px); box-shadow:0 14px 30px rgba(30,30,60,.10); }
+
+:focus-visible{ outline:none; box-shadow:0 0 0 3px var(--ring); border-radius:12px }
+@media (prefers-reduced-motion: reduce){
+  *{ animation-duration:.001ms !important; animation-iteration-count:1 !important; transition-duration:.001ms !important; scroll-behavior:auto !important; }
+}
+@media (prefers-color-scheme: dark){
+  body{ background: radial-gradient(1200px 900px at 15% 20%, #2f2a45, #1f1b31) fixed; color:#f3f1fb }
+  .side, .content, .card, .modal-card{ background:#26213a; border-color:#3a3357; }
+  .quote{ background:linear-gradient(90deg, rgba(126,87,194,.25), transparent) }
+  .btn{ background:#302a4a; color:#f0eaff }
+  .btn:hover{ background:#3a3360 }
+  .action{ background:#302a4a; color:#f0eaff }
+  .action:hover{ background:#3a3360 }
+  .chip{ background:#3a2f63; color:#d6caff }
+  .legend, .subtitle{ color:#c8c3de }
+}
